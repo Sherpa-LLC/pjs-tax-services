@@ -32,150 +32,272 @@ const {
 
 const allServices = await getCollection('services');
 const services = allServices.sort((a, b) => a.data.order - b.data.order);
+
+// Service icons (inline SVGs for each service type)
+const serviceIcons: Record<string, string> = {
+  'tax-preparation': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>',
+  'bookkeeping': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>',
+  'payroll-management': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" /></svg>',
+  'financial-consulting': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>',
+};
+
+// Trust/Why metrics
+const trustMetrics = [
+  { label: 'Year-Over-Year Growth', value: 20, suffix: '%' },
+  { label: 'Client Retention Rate', value: 97, suffix: '%' },
+  { label: 'Referral Rate', value: 90, suffix: '%' },
+];
 ---
 
 <BaseLayout description={business.description}>
-  <!-- HERO -->
-  <section class="relative overflow-hidden" style={`background: var(--color-secondary); min-height: 90dvh;`}>
-    {heroImage && (
-      <div class="absolute inset-0">
-        <img
-          src={heroImage}
-          alt={heroAlt || heroHeadline}
-          class="w-full h-full object-cover opacity-30"
-          width="1920"
-          height="1080"
-          fetchpriority="high"
-          decoding="async"
-        />
-      </div>
-    )}
-    <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center" style="min-height: 90dvh;">
-      <div class="max-w-2xl">
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6" style="font-family: var(--font-family-display); color: var(--color-text-on-dark); line-height: 1.08;">
-          {heroHeadline}
-          {heroAccent && (
-            <span class="block" style={`color: var(--color-primary);`}>{heroAccent}</span>
-          )}
-        </h1>
-        <p class="text-lg sm:text-xl mb-8 max-w-xl" style="color: var(--color-text-on-dark-muted);">
-          {heroSubtext}
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <a href={cta.primary.href} class="btn-primary">{ctaPrimary || cta.primary.label}</a>
-          {ctaSecondary && (
-            <a href="/services" class="btn-ghost">{ctaSecondary}</a>
+  <!-- HERO — Clean Asymmetric Layout -->
+  <section class="relative overflow-hidden" style="background: var(--color-secondary); min-height: 85dvh;">
+    <!-- Pattern background -->
+    <div class="hero-pattern"></div>
+    <!-- Gradient overlay for contrast -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(15,30,66,0.95) 0%, rgba(15,30,66,0.8) 40%, rgba(15,30,66,0.6) 100%);"></div>
+
+    <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center" style="min-height: 85dvh;">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full py-16 lg:py-0">
+        <!-- Left: Content -->
+        <div class="order-2 lg:order-1">
+          <div class="section-label mb-6" style="color: var(--color-accent-warm);">
+            Wilmington, Ohio's Trusted Tax Professionals
+          </div>
+          <h1 class="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-bold mb-6" style="font-family: var(--font-family-display); color: var(--color-text-on-dark); line-height: 1.06;">
+            {heroHeadline}
+            {heroAccent && (
+              <span class="text-gradient block mt-1">{heroAccent}</span>
+            )}
+          </h1>
+          <p class="text-lg sm:text-xl mb-8 max-w-xl leading-relaxed" style="color: var(--color-text-on-dark-muted);">
+            {heroSubtext}
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 mb-10">
+            <a href={cta.primary.href} class="btn-primary">{ctaPrimary || cta.primary.label}</a>
+            {ctaSecondary && (
+              <a href="/services" class="btn-ghost">{ctaSecondary}</a>
+            )}
+          </div>
+          {trustItems && trustItems.length > 0 && (
+            <div class="flex flex-wrap gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-on-dark-muted);">
+              {trustItems.map((item: any) => (
+                <span class="flex items-center gap-2.5">
+                  <span class="w-5 h-5 rounded-full flex items-center justify-center" style="background: rgba(12,140,150,0.2);">
+                    <svg class="w-3 h-3" style="color: var(--color-primary);" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  {item.label}
+                </span>
+              ))}
+            </div>
           )}
         </div>
-        {trustItems && trustItems.length > 0 && (
-          <div class="mt-10 flex flex-wrap gap-6 text-sm" style="color: var(--color-text-on-dark-muted);">
-            {trustItems.map((item: any) => (
-              <span class="flex items-center gap-2">
-                <span style={`color: var(--color-primary);`}>&#10003;</span>
-                {item.label}
-              </span>
-            ))}
-          </div>
-        )}
+
+        <!-- Right: Hero Image -->
+        <div class="order-1 lg:order-2 flex justify-center lg:justify-end">
+          {heroImage && (
+            <div class="relative w-full max-w-lg">
+              <div class="absolute -inset-4 rounded-2xl opacity-20" style="background: linear-gradient(135deg, var(--color-primary), transparent); filter: blur(40px);"></div>
+              <img
+                src={heroImage}
+                alt={heroAlt || heroHeadline}
+                class="relative w-full rounded-xl object-cover shadow-2xl"
+                style="aspect-ratio: 4/3; border: 1px solid rgba(255,255,255,0.08);"
+                width="640"
+                height="480"
+                fetchpriority="high"
+                decoding="async"
+              />
+              <!-- Floating metric badge -->
+              <div class="absolute -bottom-4 -left-4 sm:-left-8 px-5 py-3 rounded-lg shadow-xl" style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                <p class="text-2xl font-bold" style="color: var(--color-primary);">25+</p>
+                <p class="text-xs font-medium" style="color: var(--color-text-muted);">Years Experience</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES -->
+  <!-- SERVICES — Accordion-Expand Panels with Icons -->
   <section class="py-20 lg:py-28" style="background: var(--color-bg);">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      {servicesSubheading && <p class="section-label mb-3 reveal">{servicesSubheading}</p>}
-      <h2 class="text-3xl sm:text-4xl font-bold mb-12 reveal" style="font-family: var(--font-family-display);">
-        {servicesHeading || 'Our Services'}
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {servicesSubheading && <p class="section-label mb-4 reveal">{servicesSubheading}</p>}
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold reveal text-balance" style="font-family: var(--font-family-display);">
+          {servicesHeading || 'Our Services'}
+        </h2>
+        <a href="/services" class="text-sm font-semibold reveal inline-flex items-center gap-1.5 transition-colors" style="color: var(--color-primary);">
+          View All Services
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         {services.map((svc, i) => (
-          <a
-            href={`/services/${svc.data.slug}`}
-            class="group rounded-lg overflow-hidden transition-shadow duration-300 reveal"
-            style={`background: var(--color-surface); box-shadow: var(--shadow-card); transition-delay: ${i * 100}ms;`}
-          >
-            <div class="aspect-[16/10] overflow-hidden">
-              <img
-                src={svc.data.heroImage}
-                alt={svc.data.heroAlt}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                width="600"
-                height="375"
-                loading="lazy"
-              />
+          <details class="accordion-panel reveal" style={`transition-delay: ${i * 100}ms;`}>
+            <summary>
+              <span class="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style="background: var(--color-primary-light); color: var(--color-primary);">
+                <Fragment set:html={serviceIcons[svc.data.slug] || serviceIcons['tax-preparation']} />
+              </span>
+              <span class="flex-1">
+                <span class="block font-bold text-lg" style="font-family: var(--font-family-display);">{svc.data.title}</span>
+              </span>
+              <svg class="w-5 h-5 flex-shrink-0 transition-transform duration-300" style="color: var(--color-primary);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </summary>
+            <div class="panel-content">
+              <div class="flex flex-col sm:flex-row gap-6 items-start">
+                <div class="flex-1">
+                  <p class="text-sm leading-relaxed mb-4" style="color: var(--color-text-muted);">{svc.data.shortDescription}</p>
+                  <a href={`/services/${svc.data.slug}`} class="inline-flex items-center gap-1.5 text-sm font-bold transition-colors" style="color: var(--color-primary);">
+                    Learn More
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                  </a>
+                </div>
+                <div class="w-full sm:w-40 flex-shrink-0 rounded-lg overflow-hidden">
+                  <img
+                    src={svc.data.heroImage}
+                    alt={svc.data.heroAlt}
+                    class="w-full h-28 sm:h-24 object-cover"
+                    width="160"
+                    height="96"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
             </div>
-            <div class="p-6">
-              <h3 class="text-xl font-bold mb-2" style="font-family: var(--font-family-display);">{svc.data.title}</h3>
-              <p class="text-sm" style="color: var(--color-text-muted);">{svc.data.shortDescription}</p>
-            </div>
-          </a>
+          </details>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- WHY US -->
+  <!-- WHY US — Trust Metrics with Animated Counter Bars -->
   {whyUs && whyUs.length > 0 && (
     <section class="py-20 lg:py-28" style="background: var(--color-bg-alt);">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {whySubheading && <p class="section-label mb-3 reveal">{whySubheading}</p>}
-        <h2 class="text-3xl sm:text-4xl font-bold mb-12 reveal" style="font-family: var(--font-family-display);">
-          {whyHeading || `Why ${business.name}?`}
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {whyUs.map((item: any, i: number) => (
-            <div class="reveal" style={`transition-delay: ${i * 100}ms;`}>
-              <h3 class="text-lg font-bold mb-2">{item.title}</h3>
-              <p class="text-sm" style="color: var(--color-text-muted);">{item.description}</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <!-- Left: Content -->
+          <div>
+            {whySubheading && <p class="section-label mb-4 reveal">{whySubheading}</p>}
+            <h2 class="text-3xl sm:text-4xl font-bold mb-8 reveal text-balance" style="font-family: var(--font-family-display);">
+              {whyHeading || `Why ${business.name}?`}
+            </h2>
+            <div class="space-y-6">
+              {whyUs.map((item: any, i: number) => (
+                <div class="flex gap-4 reveal" style={`transition-delay: ${i * 100}ms;`}>
+                  <div class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold text-white" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));">
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg mb-1">{item.title}</h3>
+                    <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">{item.description}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <!-- Right: Trust Metrics with Progress Bars -->
+          <div class="p-8 lg:p-10 rounded-xl reveal" style="background: var(--color-surface); box-shadow: var(--shadow-card);">
+            <h3 class="text-xl font-bold mb-2" style="font-family: var(--font-family-display);">Our Results Speak</h3>
+            <p class="text-sm mb-8" style="color: var(--color-text-muted);">Numbers that demonstrate our commitment to clients.</p>
+            <div class="space-y-8" id="trust-metrics">
+              {trustMetrics.map((metric) => (
+                <div>
+                  <div class="flex justify-between items-baseline mb-2">
+                    <span class="text-sm font-medium" style="color: var(--color-text-light);">{metric.label}</span>
+                    <span class="text-2xl font-bold" style="color: var(--color-primary);">
+                      <span class="counter-value" data-target={metric.value}>0</span>{metric.suffix}
+                    </span>
+                  </div>
+                  <div class="counter-bar">
+                    <div class="counter-bar-fill" style={`--target-width: ${metric.value}%;`}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   )}
 
-  <!-- PROCESS -->
+  <!-- PROCESS — Vertical Numbered Steps -->
   {processSteps && processSteps.length > 0 && (
     <section class="py-20 lg:py-28" style="background: var(--color-bg);">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {processSubheading && <p class="section-label mb-3 reveal">{processSubheading}</p>}
-        <h2 class="text-3xl sm:text-4xl font-bold mb-12 reveal" style="font-family: var(--font-family-display);">
-          {processHeading || 'How It Works'}
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {processSteps.map((step: any, i: number) => (
-            <div class="reveal" style={`transition-delay: ${i * 100}ms;`}>
-              <div class="text-4xl font-bold mb-4" style="color: var(--color-primary); opacity: 0.3;">
-                {String(i + 1).padStart(2, '0')}
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-14">
+          {processSubheading && <p class="section-label mb-4 justify-center reveal">{processSubheading}</p>}
+          <h2 class="text-3xl sm:text-4xl font-bold reveal text-balance" style="font-family: var(--font-family-display);">
+            {processHeading || 'How It Works'}
+          </h2>
+          <p class="mt-4 text-lg max-w-2xl mx-auto reveal" style="color: var(--color-text-muted);">
+            Getting started with PJS Tax is simple. We handle the hard part so you don't have to.
+          </p>
+        </div>
+        <div class="relative">
+          <!-- Vertical line -->
+          <div class="hidden md:block absolute left-[28px] top-4 bottom-4 w-px" style="background: linear-gradient(to bottom, var(--color-primary), var(--color-border));"></div>
+          <div class="space-y-8 md:space-y-6">
+            {processSteps.map((step: any, i: number) => (
+              <div class="flex gap-6 reveal" style={`transition-delay: ${i * 120}ms;`}>
+                <!-- Step Number with Checkbox Style -->
+                <div class="flex-shrink-0 relative z-10">
+                  <div class="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg text-white shadow-md" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));">
+                    {i + 1}
+                  </div>
+                </div>
+                <!-- Content -->
+                <div class="flex-1 pt-2 pb-6">
+                  <h3 class="text-xl font-bold mb-2" style="font-family: var(--font-family-display);">{step.title}</h3>
+                  <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">{step.description}</p>
+                </div>
               </div>
-              <h3 class="text-lg font-bold mb-2">{step.title}</h3>
-              <p class="text-sm" style="color: var(--color-text-muted);">{step.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
   )}
 
-  <!-- TESTIMONIALS -->
+  <!-- TESTIMONIALS — Professional Review Cards -->
   {config.testimonials.length > 0 && (
     <section class="py-20 lg:py-28" style="background: var(--color-bg-alt);">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {testimonialsSubheading && <p class="section-label mb-3 reveal">{testimonialsSubheading}</p>}
-        <h2 class="text-3xl sm:text-4xl font-bold mb-12 reveal" style="font-family: var(--font-family-display);">
-          {testimonialsHeading || 'What Our Clients Say'}
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="text-center mb-14">
+          {testimonialsSubheading && <p class="section-label mb-4 justify-center reveal">{testimonialsSubheading}</p>}
+          <h2 class="text-3xl sm:text-4xl font-bold reveal text-balance" style="font-family: var(--font-family-display);">
+            {testimonialsHeading || 'What Our Clients Say'}
+          </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {config.testimonials.map((t, i) => (
-            <blockquote class="p-8 rounded-lg reveal" style={`background: var(--color-surface); box-shadow: var(--shadow-card); transition-delay: ${i * 100}ms;`}>
-              <p class="text-base mb-6 italic" style="color: var(--color-text-light);">&ldquo;{t.quote}&rdquo;</p>
-              <footer class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white" style="background: var(--color-primary);">
+            <blockquote
+              class="p-8 rounded-xl reveal flex flex-col"
+              style={`background: var(--color-surface); box-shadow: var(--shadow-card); transition-delay: ${i * 100}ms;`}
+            >
+              <!-- Star Rating -->
+              <div class="stars mb-4">
+                {[1,2,3,4,5].map(() => (
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p class="text-base leading-relaxed mb-6 flex-1" style="color: var(--color-text-light);">
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <footer class="flex items-center gap-3 pt-4" style="border-top: 1px solid var(--color-border);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));">
                   {t.author.charAt(0)}
                 </div>
                 <div>
-                  <cite class="not-italic font-bold text-sm">{t.author}</cite>
+                  <cite class="not-italic font-bold text-sm block">{t.author}</cite>
                   <p class="text-xs" style="color: var(--color-text-muted);">{t.location}</p>
                 </div>
               </footer>
@@ -186,22 +308,88 @@ const services = allServices.sort((a, b) => a.data.order - b.data.order);
     </section>
   )}
 
-  <!-- CTA BANNER -->
-  <section class="py-20 text-center" style={`background: var(--color-dark);`}>
-    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-      <h2 class="text-3xl sm:text-4xl font-bold mb-4 reveal" style="font-family: var(--font-family-display); color: var(--color-text-on-dark);">
+  <!-- CTA BANNER — Teal Gradient with Urgency -->
+  <section class="py-20 lg:py-24 text-center teal-gradient relative overflow-hidden">
+    <!-- Pattern overlay -->
+    <div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;40&quot; height=&quot;40&quot; viewBox=&quot;0 0 40 40&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;1&quot;%3E%3Cpath d=&quot;M20 20.5V18H0v-2h20v-2l2 2.5-2 2.5z&quot;/%3E%3C/g%3E%3C/svg%3E');"></div>
+    <div class="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold mb-6" style="background: rgba(255,255,255,0.15); color: white;">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Tax Season Deadline: April 15, 2026
+      </div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-5 reveal" style="font-family: var(--font-family-display); color: white;">
         {ctaBannerHeading || 'Ready to Get Started'}
         {ctaBannerAccent && (
-          <span style={`color: var(--color-primary);`}> {ctaBannerAccent}</span>
+          <span class="block mt-1" style="color: rgba(255,255,255,0.9);">{ctaBannerAccent}</span>
         )}
       </h2>
-      <p class="mb-8 reveal" style="color: var(--color-text-on-dark-muted);">
+      <p class="text-lg mb-10 reveal" style="color: rgba(255,255,255,0.8);">
         {ctaBannerText || `Contact ${business.name} today for a free consultation.`}
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center reveal">
-        <a href={cta.primary.href} class="btn-primary">{cta.primary.label}</a>
-        <a href={`tel:${contact.phoneRaw}`} class="btn-ghost">{cta.phone.label}</a>
+        <a href={cta.primary.href} class="btn-primary !bg-white !shadow-xl" style="color: var(--color-primary-dark) !important; background: white !important;">
+          File With Confidence
+        </a>
+        <a href={`tel:${contact.phoneRaw}`} class="btn-ghost !border-white/30 hover:!bg-white/10">
+          {cta.phone.label}
+        </a>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Animate counter bars and values when they enter viewport
+  const metricsSection = document.getElementById('trust-metrics');
+  if (metricsSection) {
+    const counterObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Animate bars
+            const bars = metricsSection.querySelectorAll('.counter-bar-fill');
+            bars.forEach((bar) => {
+              (bar as HTMLElement).classList.add('animated');
+            });
+
+            // Animate counter values
+            const counters = metricsSection.querySelectorAll('.counter-value');
+            counters.forEach((counter) => {
+              const target = parseInt((counter as HTMLElement).dataset.target || '0');
+              let current = 0;
+              const increment = target / 60;
+              const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                  counter.textContent = String(target);
+                  clearInterval(timer);
+                } else {
+                  counter.textContent = String(Math.floor(current));
+                }
+              }, 25);
+            });
+
+            counterObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+    counterObserver.observe(metricsSection);
+  }
+
+  // Close accordion siblings (optional: only one open at a time)
+  document.querySelectorAll('.accordion-panel').forEach((panel) => {
+    panel.addEventListener('toggle', (e) => {
+      if ((e.target as HTMLDetailsElement).open) {
+        const icon = (e.target as HTMLElement).querySelector('summary svg:last-child');
+        if (icon) icon.style.transform = 'rotate(45deg)';
+      } else {
+        const icon = (e.target as HTMLElement).querySelector('summary svg:last-child');
+        if (icon) icon.style.transform = '';
+      }
+    });
+  });
+</script>

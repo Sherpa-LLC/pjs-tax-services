@@ -6,8 +6,8 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
 ---
 
 <footer class="pb-24 lg:pb-0" style={`background-color: var(--color-dark); color: var(--color-text-on-dark-muted);`}>
-  <!-- Accent line -->
-  <div class="h-[2px]" style={`background: linear-gradient(to right, transparent, var(--color-accent), transparent);`}></div>
+  <!-- Accent gradient line -->
+  <div class="h-[3px]" style="background: linear-gradient(to right, var(--color-secondary), var(--color-primary), var(--color-accent-warm), var(--color-primary), var(--color-secondary));"></div>
 
   <div class="mx-auto max-w-7xl px-5 lg:px-8 pt-16 pb-12">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
@@ -18,16 +18,16 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
           <img
             src="/images/logo-full-white.svg"
             alt={config.business.name}
-            class="h-12 w-auto"
+            class="h-11 w-auto"
             width="240"
-            height="48"
+            height="44"
           />
         </a>
-        <p class="text-sm max-w-xs" style="color: var(--color-text-on-dark-muted);">
-          {config.business.tagline}
+        <p class="text-sm max-w-xs leading-relaxed" style="color: var(--color-text-on-dark-muted);">
+          {config.business.tagline}. Proudly serving {config.contact.address.city}, Ohio and the surrounding communities since {config.business.yearFounded}.
         </p>
         {config.schema.sameAs.length > 0 && (
-          <div class="flex gap-4 mt-6">
+          <div class="flex gap-3 mt-6">
             {config.schema.sameAs.map((url) => {
               const isFacebook = url.includes('facebook');
               return (
@@ -35,7 +35,7 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200"
+                  class="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-white/10"
                   style="border: 1px solid var(--color-border-dark); color: var(--color-text-on-dark-muted);"
                   aria-label={isFacebook ? 'Facebook' : 'Instagram'}
                 >
@@ -57,13 +57,14 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
 
       <!-- Contact Column -->
       <div>
-        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mb-6" style="color: var(--color-text-on-dark);">
+        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mb-6 flex items-center gap-2" style="color: var(--color-text-on-dark);">
+          <span class="w-4 h-[2px] rounded-full" style="background: var(--color-primary);"></span>
           Contact
         </h3>
         <div class="space-y-4 text-sm">
           <a
             href={`tel:${config.contact.phoneRaw}`}
-            class="block font-bold text-lg transition-colors"
+            class="block font-bold text-lg transition-colors hover:text-white"
             style="color: var(--color-primary);"
           >
             {config.contact.phone}
@@ -83,14 +84,15 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
 
       <!-- Hours Column -->
       <div>
-        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mb-6" style="color: var(--color-text-on-dark);">
+        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mb-6 flex items-center gap-2" style="color: var(--color-text-on-dark);">
+          <span class="w-4 h-[2px] rounded-full" style="background: var(--color-primary);"></span>
           Hours
         </h3>
         <dl class="space-y-2 text-sm">
           {Object.entries(config.hours).map(([day, hours]) => (
             <div class="flex justify-between gap-4">
               <dt class="capitalize" style="color: var(--color-text-on-dark-muted);">{day}</dt>
-              <dd style={hours === 'Closed' ? 'color: var(--color-text-on-dark-muted);' : 'color: var(--color-text-on-dark);'}>{hours}</dd>
+              <dd style={hours === 'Closed' ? 'color: var(--color-text-on-dark-muted); opacity: 0.5;' : 'color: var(--color-text-on-dark);'}>{hours}</dd>
             </div>
           ))}
         </dl>
@@ -98,7 +100,8 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
 
       <!-- Service Areas Column -->
       <div>
-        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mb-6" style="color: var(--color-text-on-dark);">
+        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mb-6 flex items-center gap-2" style="color: var(--color-text-on-dark);">
+          <span class="w-4 h-[2px] rounded-full" style="background: var(--color-primary);"></span>
           Service Areas
         </h3>
         <p class="text-sm flex flex-wrap gap-x-1.5 gap-y-0.5" style="color: var(--color-text-on-dark-muted);">
@@ -109,7 +112,8 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
           ))}
         </p>
 
-        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mt-8 mb-4" style="color: var(--color-text-on-dark);">
+        <h3 class="text-[13px] font-bold uppercase tracking-[0.08em] mt-8 mb-4 flex items-center gap-2" style="color: var(--color-text-on-dark);">
+          <span class="w-4 h-[2px] rounded-full" style="background: var(--color-primary);"></span>
           Services
         </h3>
         <ul class="space-y-2 text-sm">
@@ -117,8 +121,9 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
             <li>
               <a
                 href={`/services/${svc.slug}`}
-                class="hover:text-white transition-colors"
+                class="hover:text-white transition-colors inline-flex items-center gap-1.5"
               >
+                <span class="text-[var(--color-primary)] text-xs">&rsaquo;</span>
                 {svc.name}
               </a>
             </li>
@@ -128,13 +133,13 @@ const allAreas = [...config.serviceAreas.primary, ...config.serviceAreas.seconda
     </div>
 
     <!-- Bottom Bar -->
-    <div class="mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style="border-top: 1px solid var(--color-border-dark);">
+    <div class="mt-14 pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style="border-top: 1px solid var(--color-border-dark);">
       <p class="text-[13px]" style="color: var(--color-text-on-dark-muted);">
         &copy; {year} {config.business.name}. All rights reserved.
       </p>
-      <div class="flex items-center gap-2 text-[13px]" style="color: var(--color-text-on-dark-muted);">
+      <div class="flex items-center gap-4 text-[13px]" style="color: var(--color-text-on-dark-muted);">
         <a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a>
-        <span style="color: var(--color-accent);">|</span>
+        <span class="w-1 h-1 rounded-full" style="background: var(--color-primary);"></span>
         <a href="/terms" class="hover:text-white transition-colors">Terms of Service</a>
       </div>
     </div>
