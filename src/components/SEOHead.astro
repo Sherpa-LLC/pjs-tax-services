@@ -16,7 +16,9 @@ const {
 } = Astro.props;
 
 const pageTitle = title
-  ? config.seo.titleTemplate.replace('%s', title)
+  ? (title.includes(config.business.name) || title.includes(' | ') || title.includes(' — '))
+    ? title
+    : config.seo.titleTemplate.replace('%s', title)
   : config.seo.defaultTitle;
 
 const canonical = canonicalUrl || new URL(Astro.url.pathname, config.seo.siteUrl).href;
