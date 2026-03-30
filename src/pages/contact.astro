@@ -98,13 +98,7 @@ const taxYears = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3
             </div>
 
             <!-- Turnstile placeholder -->
-            <div id="cf-turnstile" class="cf-turnstile" data-sitekey="0x0000000000000000000000" data-theme="light">
-              <noscript>
-                <div class="p-4 rounded-lg text-sm" style="background: var(--color-bg-alt); color: var(--color-text-muted);">
-                  Please enable JavaScript to submit this form.
-                </div>
-              </noscript>
-            </div>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAAe0EJ2NwHkMsJro" data-theme="light"></div>
 
             <button type="submit" class="btn-primary w-full sm:w-auto">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -188,3 +182,5 @@ const taxYears = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3
     </div>
   </section>
 </BaseLayout>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
